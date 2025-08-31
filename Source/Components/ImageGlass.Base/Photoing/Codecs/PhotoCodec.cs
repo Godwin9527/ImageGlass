@@ -886,15 +886,8 @@ public static class PhotoCodec
             case ".FAX":
                 try
                 {
-                    // Note: Using FileStream is much faster than using MagickImageCollection
-                    if (result.CanAnimate)
-                    {
-                        result.Source = BHelper.ToGdiPlusBitmap(filePath);
-                    }
-                    else
-                    {
-                        result.Image = WicBitmapSource.Load(filePath);
-                    }
+                    // Note: Using WIC is much faster than using MagickImageCollection
+                    result.Source = WicBitmapDecoder.Load(filePath);
                 }
                 catch
                 {
