@@ -769,6 +769,7 @@ public partial class FrmMain : ThemedForm
                 UseEmbeddedThumbnailOtherFormats = Config.UseEmbeddedThumbnailOtherFormats,
                 EmbeddedThumbnailMinWidth = Config.EmbeddedThumbnailMinWidth,
                 EmbeddedThumbnailMinHeight = Config.EmbeddedThumbnailMinHeight,
+                MinDimensionToUseWIC = Config.MinDimensionToUseWIC,
                 FrameIndex = frameIndex,
             };
 
