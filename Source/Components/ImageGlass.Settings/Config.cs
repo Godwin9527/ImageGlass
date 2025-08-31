@@ -2168,12 +2168,16 @@ public static class Config
         }
 
 
-        // migrate from < 9.2
-        if (Version <= 9.2)
+        // migrate from < 9.3
+        if (Version < 9.3)
         {
-            FileFormats.Add(".jxr");
-            FileFormats.Add(".hdp");
-            FileFormats.Add(".wdp");
+            FileFormats.AddRange([".jxr", ".hdp", ".wdp"]);
+        }
+
+        // migrate from < 9.4
+        if (Version < 9.4)
+        {
+            FileFormats.Add(".hif");
         }
     }
 
