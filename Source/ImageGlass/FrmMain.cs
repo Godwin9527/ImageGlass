@@ -1099,12 +1099,21 @@ public partial class FrmMain : ThemedForm
             Local.TempImagePath = null;
 
 
-            // set the main image
-            PicMain.SetImage(e.Data.ImgData,
-                autoAnimate: !e.IsViewingSeparateFrame,
-                frameIndex: e.FrameIndex,
-                resetZoom: e.ResetZoom,
-                channels: Local.ImageChannels);
+            try
+            {
+                // set the main image
+                PicMain.SetImage(e.Data.ImgData,
+                    autoAnimate: !e.IsViewingSeparateFrame,
+                    frameIndex: e.FrameIndex,
+                    resetZoom: e.ResetZoom,
+                    channels: Local.ImageChannels);
+            }
+            catch (Exception ex)
+            {
+                e.Error = ex;
+                _ = HandleImageProgress_LoadedAsync(e);
+                return;
+            }
 
             // update window fit
             if (e.ResetZoom && Config.EnableWindowFit)
