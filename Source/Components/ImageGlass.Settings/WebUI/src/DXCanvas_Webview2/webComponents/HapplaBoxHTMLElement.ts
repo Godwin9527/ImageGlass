@@ -142,8 +142,8 @@ export class HapplaBoxHTMLElement extends HTMLElement {
     });
 
     // fix the path of image
-    const imgEls = Array.from(this.#boxContentEl.querySelectorAll('image[href]'));
-    imgEls.forEach((img: HTMLImageElement) => {
+    const imageEls = Array.from(this.#boxContentEl.querySelectorAll('image[href]'));
+    imageEls.forEach((img: SVGImageElement) => {
       const href = img.getAttribute('href') ?? '';
 
       // check if the href is valid
