@@ -225,9 +225,9 @@ public partial class FrmSlideshow : ThemedForm
     }
 
 
-    protected override void OnClosing(CancelEventArgs e)
+    protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        base.OnClosing(e);
+        base.OnFormClosing(e);
         _igTool.Dispose();
     }
 

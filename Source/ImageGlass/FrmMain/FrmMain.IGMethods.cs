@@ -1327,10 +1327,11 @@ public partial class FrmMain
         // Is there a file in clipboard?
         if (Clipboard.ContainsFileDropList())
         {
-            var sFile = Clipboard.GetData(DataFormats.FileDrop) as string[];
-
-            // load file
-            PrepareLoading(sFile[0], true);
+            if (Clipboard.TryGetData<string[]>(DataFormats.FileDrop, out var sFile))
+            {
+                // load file
+                PrepareLoading(sFile[0], true);
+            }
         }
 
         // Is there a image in clipboard?
