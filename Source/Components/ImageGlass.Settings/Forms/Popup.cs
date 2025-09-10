@@ -265,7 +265,8 @@ public partial class Popup : DialogForm
             {
                 picThumbnail.Image = null;
                 return;
-            };
+            }
+            ;
 
             // draw thumbnail overlay
             var bmp = new Bitmap(picThumbnail.Width, picThumbnail.Height);
@@ -657,7 +658,7 @@ public partial class Popup : DialogForm
         string note = "",
         ColorStatusType? noteStatusType = null,
         PopupButton buttons = PopupButton.OK,
-        ShellStockIcon? icon = null,
+        StockIconId? icon = null,
         Image? thumbnail = null,
         string optionText = "",
         bool topMost = false,

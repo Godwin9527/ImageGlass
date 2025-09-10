@@ -508,7 +508,7 @@ public partial class FrmMain
         {
             Title = Config.Language[$"{Name}.{nameof(MnuCustomZoom)}"],
             Value = oldZoom.ToString(),
-            Thumbnail = SystemIconApi.GetSystemIcon(ShellStockIcon.SIID_FIND),
+            Thumbnail = SystemIconApi.GetSystemIcon(StockIconId.Find),
 
             UnsignedFloatValueOnly = true,
             TopMost = TopMost,
@@ -2041,7 +2041,7 @@ public partial class FrmMain
             Title = title,
             Value = newName,
             Thumbnail = Gallery.Items[Local.CurrentIndex].ThumbnailImage,
-            ThumbnailOverlay = SystemIconApi.GetSystemIcon(ShellStockIcon.SIID_RENAME),
+            ThumbnailOverlay = SystemIconApi.GetSystemIcon(StockIconId.Rename),
 
             FileNameValueOnly = true,
             TopMost = TopMost,
@@ -2110,8 +2110,8 @@ public partial class FrmMain
                 : Config.Language[$"{Name}.{nameof(MnuDeleteFromHardDisk)}._Description"];
 
             var overlayIcon = moveToRecycleBin
-                ? ShellStockIcon.SIID_RECYCLER
-                : ShellStockIcon.SIID_DELETE;
+                ? StockIconId.Recycler
+                : StockIconId.Delete;
 
             var description = filePath + "\r\n" +
                     BHelper.FormatSize(Gallery.Items[Local.CurrentIndex].Details.FileSize);
