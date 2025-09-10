@@ -235,7 +235,7 @@ public class ModernButton : Button
                  ControlStyles.ResizeRedraw |
                  ControlStyles.UserPaint, true);
 
-        base.UseVisualStyleBackColor = false;
+        base.UseVisualStyleBackColor = true;
         base.UseCompatibleTextRendering = false;
 
         SetButtonState(ModernControlState.Normal);
