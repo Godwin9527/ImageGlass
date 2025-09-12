@@ -26,6 +26,7 @@ using ImageGlass.Base.WinApi;
 using ImageGlass.Gallery;
 using ImageGlass.Settings;
 using ImageGlass.UI;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
 using WicNet;
@@ -1637,9 +1638,8 @@ public partial class FrmMain : ThemedForm
                     }
                     else
                     {
-                        error = new ArgumentException(
-                            ZString.Format(Config.Language[$"{langPath}._MethodArgumentNotSupported"], ac.Executable),
-                            nameof(ac.Arguments));
+                        error = new MissingMethodException(
+                            ZString.Format(Config.Language[$"{langPath}._MethodArgumentNotSupported"], ac.Executable), ac.Executable);
                     }
 
 
@@ -1682,7 +1682,7 @@ public partial class FrmMain : ThemedForm
             var result = await BHelper.RunExeCmd(Executable, Args, false, false);
             if (result != IgExitCode.Done)
             {
-                error = new Exception(ZString.Format(Config.Language[$"{langPath}._Win32ExeError"], ac.Executable));
+                error = new Win32Exception(ZString.Format(Config.Language[$"{langPath}._Win32ExeError"], ac.Executable));
             }
         }
 
