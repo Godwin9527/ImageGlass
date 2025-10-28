@@ -888,7 +888,20 @@ public static class PhotoCodec
                 try
                 {
                     // Note: Using WIC is much faster than using MagickImageCollection
-                    result.Source = WicBitmapDecoder.Load(filePath);
+                    if (result.CanAnimate)
+                    {
+                        result.Source = BHelper.ToGdiPlusBitmap(filePath);
+                    }
+                    // multiple frame
+                    else if (result.FrameCount > 0)
+                    {
+                        result.Source = WicBitmapDecoder.Load(filePath);
+                    }
+                    // single frame
+                    else
+                    {
+                        result.Image = WicBitmapSource.Load(filePath);
+                    }
                 }
                 catch
                 {
