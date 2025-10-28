@@ -24,7 +24,6 @@ using PhotoSauce.MagicScaler;
 using System.Runtime.CompilerServices;
 using System.Text;
 using WicNet;
-using ColorProfile = ImageMagick.ColorProfile;
 
 namespace ImageGlass.Base.Photoing.Codecs;
 
@@ -1359,7 +1358,7 @@ public static class PhotoCodec
                 {
                     refImgM.TransformColorSpace(
                         //set default color profile to sRGB
-                        colorProfile ?? ColorProfile.SRGB,
+                        colorProfile ?? ColorProfiles.SRGB,
                         imgColor);
                 }
             }
