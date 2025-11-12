@@ -433,7 +433,7 @@ public static class Config
     /// <summary>
     /// Gets, sets the minimum image dimension to use WIC decoder if the format is supported.
     /// </summary>
-    public static int MinDimensionToUseWIC { get; set; } = 10_000;
+    public static int MinDimensionToUseWIC { get; set; } = 16_000;
 
     /// <summary>
     /// Gets, sets the number of images cached by <see cref="Base.Services.ImageBooster"/>.
