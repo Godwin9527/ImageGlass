@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --list-sdks 2>&1)",
+      "Bash(dotnet --version 2>&1)",
+      "Bash(winget search:*)",
+      "Bash(winget install:*)",
+      "Bash(export PATH=\"/c/Program Files/dotnet:$PATH\" && dotnet --version 2>&1)",
+      "Bash(cd \"D:/A-02-APP/07-ImageGlass/ImageGlass/Source/Components/ImageGlass.Settings/WebUI\" && npm install 2>&1)",
+      "Bash(cd \"D:/A-02-APP/07-ImageGlass/ImageGlass/Source/Components/ImageGlass.Settings/WebUI\" && npm run build 2>&1)",
+      "Bash(export PATH=\"/c/Program Files/dotnet:$PATH\" && cd \"D:/A-02-APP/07-ImageGlass/ImageGlass/Source\" && dotnet publish ImageGlass/ImageGlass.csproj -p:PublishProfile=x64 2>&1)"
+    ]
+  }
+}
