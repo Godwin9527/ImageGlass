@@ -33,7 +33,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          VERSION=$(grep -oP '<Version>\K[^<]+' ImageGlass/Source/ImageGlass/ImageGlass.csproj)
+          VERSION=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' ImageGlass/Source/ImageGlass/ImageGlass.csproj | head -1 | tr -d '[:space:]')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)
           echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
