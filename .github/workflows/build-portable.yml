@@ -1,0 +1,84 @@
+name: Build Portable
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build WebUI
+        working-directory: ImageGlass/Source/Components/ImageGlass.Settings/WebUI
+        run: |
+          npm install
+          npm run build
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(grep -oP '<Version>\K[^<]+' ImageGlass/Source/ImageGlass/ImageGlass.csproj)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Publish x64
+        run: |
+          dotnet publish ImageGlass/Source/ImageGlass/ImageGlass.csproj `
+            -c Release `
+            -r win-x64 `
+            -p:Platform=x64 `
+            --self-contained true `
+            -o publish/ImageGlass
+          dotnet publish ImageGlass/Source/igcmd/igcmd.csproj `
+            -c Release `
+            -r win-x64 `
+            -p:Platform=x64 `
+            --self-contained true `
+            -o publish/ImageGlass
+
+      - name: Copy portable config
+        shell: bash
+        run: |
+          # Copy default config as igconfig.json if not present
+          if [ -f "publish/ImageGlass/igconfig.default.json" ] && [ ! -f "publish/ImageGlass/igconfig.json" ]; then
+            cp publish/ImageGlass/igconfig.default.json publish/ImageGlass/igconfig.json
+          fi
+
+      - name: Package portable zip
+        shell: bash
+        run: |
+          cd publish
+          7z a -tzip "../ImageGlass_${VERSION}_x64_Portable.zip" ImageGlass/
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_sha }}
+          name: ImageGlass v${{ steps.version.outputs.version }} (build ${{ steps.version.outputs.short_sha }})
+          body: |
+            Portable build from commit ${{ github.sha }}
+
+            - Platform: Windows x64
+            - .NET 10 self-contained (no need to install .NET runtime)
+          files: ImageGlass_${{ steps.version.outputs.version }}_x64_Portable.zip
+          draft: false
+          prerelease: false
