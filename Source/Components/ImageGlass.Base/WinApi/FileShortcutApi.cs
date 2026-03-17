@@ -1,4 +1,4 @@
-﻿/*
+/*
 ImageGlass Project - Image viewer for Windows
 Copyright (C) 2010 - 2026 DUONG DIEU PHAP
 Project homepage: https://imageglass.org
@@ -16,6 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+using System.Runtime.InteropServices;
+
 namespace ImageGlass.Base.WinApi;
 
 public static class FileShortcutApi
@@ -27,25 +29,67 @@ public static class FileShortcutApi
         Minimized = 7,
     }
 
+    // COM CLSIDs and IIDs for IShellLink
+    private static readonly Guid CLSID_ShellLink = new("00021401-0000-0000-C000-000000000046");
+    private static readonly Guid IID_IShellLinkW = new("000214F9-0000-0000-C000-000000000046");
+
+    [ComImport]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [Guid("000214F9-0000-0000-C000-000000000046")]
+    private interface IShellLinkW
+    {
+        void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszFile, int cch, IntPtr pfd, uint fFlags);
+        void GetIDList(out IntPtr ppidl);
+        void SetIDList(IntPtr pidl);
+        void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszName, int cch);
+        void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string pszName);
+        void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszDir, int cch);
+        void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string pszDir);
+        void GetArguments([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszArgs, int cch);
+        void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string pszArgs);
+        void GetHotkey(out ushort pwHotkey);
+        void SetHotkey(ushort wHotkey);
+        void GetShowCmd(out int piShowCmd);
+        void SetShowCmd(int iShowCmd);
+        void GetIconLocation([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszIconPath, int cch, out int piIcon);
+        void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string pszIconPath, int iIcon);
+        void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string pszPathRel, uint dwReserved);
+        void Resolve(IntPtr hwnd, uint fFlags);
+        void SetPath([MarshalAs(UnmanagedType.LPWStr)] string pszFile);
+    }
+
+    [ComImport]
+    [Guid("0000010b-0000-0000-C000-000000000046")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IPersistFile
+    {
+        void GetClassID(out Guid pClassID);
+        [PreserveSig] int IsDirty();
+        void Load([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, uint dwMode);
+        void Save([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, [MarshalAs(UnmanagedType.Bool)] bool fRemember);
+        void SaveCompleted([MarshalAs(UnmanagedType.LPWStr)] string pszFileName);
+        void GetCurFile([MarshalAs(UnmanagedType.LPWStr)] out string ppszFileName);
+    }
+
 
     /// <summary>
     /// Get the target path from shortcut (*.lnk)
     /// </summary>
-    /// <param name="shortcutPath">Path of shortcut (*.lnk)</param>
-    /// <returns></returns>
     public static string GetTargetPathFromShortcut(string shortcutPath)
     {
-        var shell = new IWshRuntimeLibrary.WshShell();
-
         try
         {
-            var shortcut = (IWshRuntimeLibrary.IWshShortcut)shell.CreateShortcut(shortcutPath);
+            var shellLink = (IShellLinkW)Activator.CreateInstance(Type.GetTypeFromCLSID(CLSID_ShellLink)!)!;
+            var persistFile = (IPersistFile)shellLink;
+            persistFile.Load(shortcutPath, 0);
 
-            return shortcut.TargetPath ?? "";
+            var sb = new System.Text.StringBuilder(260);
+            shellLink.GetPath(sb, sb.Capacity, IntPtr.Zero, 0);
+
+            return sb.ToString();
         }
-        catch // (COMException)
+        catch
         {
-            // A COMException is thrown if the file is not a valid shortcut (.lnk) file 
             return "";
         }
     }
@@ -54,26 +98,21 @@ public static class FileShortcutApi
     /// <summary>
     /// Create shortcut file
     /// </summary>
-    /// <param name="shortcutPath"></param>
-    /// <param name="targetPath"></param>
-    /// <param name="args"></param>
-    /// <param name="windowStyle"></param>
     public static void CreateShortcut(string shortcutPath,
         string targetPath,
         string args = "",
         ShortcutWindowStyle windowStyle = ShortcutWindowStyle.Normal)
     {
-        var shell = new IWshRuntimeLibrary.WshShell();
-
         try
         {
-            var shortcut = (IWshRuntimeLibrary.IWshShortcut)shell.CreateShortcut(shortcutPath);
+            var shellLink = (IShellLinkW)Activator.CreateInstance(Type.GetTypeFromCLSID(CLSID_ShellLink)!)!;
+            shellLink.SetPath(targetPath);
+            shellLink.SetIconLocation(targetPath, 0);
+            shellLink.SetArguments(args);
+            shellLink.SetShowCmd((int)windowStyle);
 
-            shortcut.TargetPath = targetPath;
-            shortcut.IconLocation = targetPath;
-            shortcut.Arguments = args;
-            shortcut.WindowStyle = (int)windowStyle;
-            shortcut.Save();
+            var persistFile = (IPersistFile)shellLink;
+            persistFile.Save(shortcutPath, true);
         }
         catch { }
     }

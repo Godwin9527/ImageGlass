@@ -370,26 +370,19 @@ public class WindowApi
     /// </summary>
     public static (Rectangle Bounds, FormWindowState State) GetWindowPlacement(Form frm)
     {
-        var bounds = new Rectangle();
-        var state = FormWindowState.Normal;
-        var wp = new WINDOWPLACEMENT();
+        var state = frm.WindowState;
+        Rectangle bounds;
 
-        if (frm.WindowState == FormWindowState.Normal)
+        if (state == FormWindowState.Normal)
         {
             bounds = frm.Bounds;
         }
-        else if (PInvoke.GetWindowPlacement(new(frm.Handle), ref wp))
+        else
         {
-            if (wp.showCmd == Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_MAXIMIZE)
-            {
-                state = FormWindowState.Maximized;
-            }
-
-            bounds = new(
-                wp.rcNormalPosition.X,
-                wp.rcNormalPosition.Y,
-                wp.rcNormalPosition.Width,
-                wp.rcNormalPosition.Height);
+            // Use RestoreBounds instead of WINDOWPLACEMENT.rcNormalPosition,
+            // because rcNormalPosition uses primary monitor DPI coordinates
+            // which causes window to shrink on monitors with different DPI.
+            bounds = frm.RestoreBounds;
         }
 
         return (bounds, state);

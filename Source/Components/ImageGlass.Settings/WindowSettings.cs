@@ -46,7 +46,23 @@ public partial class WindowSettings
 
         if (isBoundsVisible)
         {
+            // In PerMonitorV2 mode, when the window moves from primary screen
+            // to a secondary screen with different DPI, WinForms automatically
+            // rescales the window size via WM_DPICHANGED. This causes the saved
+            // size to be scaled incorrectly. To fix this, we set the position
+            // first (which triggers the DPI change), process the messages, then
+            // set the correct size afterwards.
+            var savedSize = bounds.Size;
             frm.Bounds = bounds;
+
+            // flush pending messages including WM_DPICHANGED
+            Application.DoEvents();
+
+            // re-apply the correct size after DPI change has been processed
+            if (frm.Size != savedSize)
+            {
+                frm.Size = savedSize;
+            }
         }
         else
         {
