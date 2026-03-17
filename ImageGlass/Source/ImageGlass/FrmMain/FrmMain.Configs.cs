@@ -363,24 +363,14 @@ public partial class FrmMain
         if (Program.IsStartupBoostMode) return;
 
 
-        // collect UI-dependent data on UI thread
+        // save FrmMain placement before async write
         if (!Config.EnableFullScreen && Config.EnableRememberWindowBounds)
         {
             WindowSettings.SaveFrmMainPlacementToConfig(this);
         }
 
-        Config.LastSeenImagePath = Local.Images.GetFilePath(Local.CurrentIndex);
-        Config.ZoomLockValue = PicMain.ZoomFactor * 100f;
-
-        // write config file on background thread to avoid async deadlock
-        Task.Run(() => Config.WriteAsync()).GetAwaiter().GetResult();
-
-        // cleaning
-        try
-        {
-            Directory.Delete(App.ConfigDir(PathType.Dir, Dir.Temporary), true);
-        }
-        catch { }
+        // save settings
+        _ = SaveConfigsOnClosing();
     }
 
 
@@ -413,16 +403,6 @@ public partial class FrmMain
 
     private void FrmMainConfig_Shown(object? sender, EventArgs e)
     {
-        // re-apply saved window placement after all initialization is complete,
-        // to override any size/position changes caused by DPI scaling,
-        // FormBorderStyle changes, or backdrop effects during startup.
-        if (!Config.EnableFullScreen
-            && !Program.IsStartupBoostMode
-            && Config.EnableRememberWindowBounds)
-        {
-            WindowSettings.LoadFrmMainPlacementFromConfig(this);
-        }
-
         _isInitializing = false;
     }
 
